@@ -1,9 +1,4 @@
-//
 //  WelcomeViewController.swift
-//  Flash Chat
-//
-//  This is the welcome view controller - the first thing the user sees
-//
 
 import UIKit
 import ChameleonFramework

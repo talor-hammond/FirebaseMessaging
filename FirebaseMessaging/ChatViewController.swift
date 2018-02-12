@@ -1,10 +1,4 @@
-//
-//  ViewController.swift
-//  Flash Chat
-//
-//  Created by Angela Yu on 29/08/2015.
-//  Copyright (c) 2015 London App Brewery. All rights reserved.
-//
+// ChatViewController.swift
 
 import UIKit
 import Firebase
@@ -13,7 +7,7 @@ import ChameleonFramework
 class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
     // Declare instance variables here
-    var messageArray : [Message] = [Message]()
+    var messageArray : [Message] = [Message]() // creating a blank messageArray -- appended by Database messages
     
     // We've pre-linked the IBOutlets
     @IBOutlet var heightConstraint: NSLayoutConstraint!
@@ -51,26 +45,29 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
 
     ///////////////////////////////////////////
     
-    //MARK: - TableView DataSource Methods
+    //MARK: TableView Protocols
     
-    
-    
-    //TODO: Declare cellForRowAtIndexPath here:
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
+        // creating a CustomMessageCell object with the constant "cell"
         let cell = tableView.dequeueReusableCell(withIdentifier: "customMessageCell", for: indexPath) as! CustomMessageCell
         
+        // accessing; dynamically changing the properties
         cell.messageBody.text = messageArray[indexPath.row].messageBody
         cell.senderUsername.text = messageArray[indexPath.row].sender
         cell.avatarImageView.image = UIImage(named: "egg")
         
         if cell.senderUsername.text == Auth.auth().currentUser?.email {
             
+            // if the currentUser was the one who sent the message...
+
             cell.avatarImageView.backgroundColor = UIColor.flatMint()
             cell.messageBackground.backgroundColor = UIColor.flatSkyBlue()
             
         }
         else {
+            
+            // if it was anyone that isn't the currentUser...
             
             cell.avatarImageView.backgroundColor = UIColor.flatWatermelon()
             cell.messageBackground.backgroundColor = UIColor.flatGray()
@@ -81,11 +78,9 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         
     }
     
-    
-    //TODO: Declare numberOfRowsInSection here:
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        return messageArray.count
+        return messageArray.count // dynamically changing the amount of rows
         
     }
     
@@ -101,7 +96,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     //TODO: Declare configureTableView here:
     func configureTableView() {
         
-        messageTableView.rowHeight = UITableViewAutomaticDimension
+        messageTableView.rowHeight = UITableViewAutomaticDimension // automatically configures row height
         messageTableView.estimatedRowHeight = 120.0
         
     }
@@ -109,17 +104,14 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     ///////////////////////////////////////////
     
-    //MARK:- TextField Delegate Methods
-    
-    
-
+    //MARK:- TextField Delegate Methods;
     
     //TODO: Declare textFieldDidBeginEditing here:
     
     func textFieldDidBeginEditing(_ textField: UITextField) {
         
         UIView.animate(withDuration: 0.5) {
-            self.heightConstraint.constant = 308
+            self.heightConstraint.constant = 300
             
             self.view.layoutIfNeeded() // if constraint is changed, redraw the whole thing...
         }
@@ -127,7 +119,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     }
     
     
-    //TODO: Declare textFieldDidEndEditing here:
+    // what happens when you are out of the textField...
     func textFieldDidEndEditing(_ textField: UITextField) {
         
         UIView.animate(withDuration: 0.5) {
@@ -136,27 +128,19 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
         
     }
-
-    
-    ///////////////////////////////////////////
-    
     
     //MARK: - Send & Recieve from Firebase
-    
-    
-    
-    
     
     @IBAction func sendPressed(_ sender: AnyObject) {
         
         // dismiss keyboard:
-        messageTextfield.endEditing(true)
+        messageTextfield.endEditing(true) // resigns the keyboard
         
         // disabling UI whilst loading:
         messageTextfield.isEnabled = false
         sendButton.isEnabled = false
 
-        //TODO: Send the message to Firebase and save it in our database
+        //TODO: Send the message to Firebase and save it in database
         
         let messagesDB = Database.database().reference().child("Messages")
         
@@ -179,25 +163,25 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         }
     }
     
-    //TODO: Create the retrieveMessages method here:
+    //TODO: Create method to retrieveMessages from database w reference to child "Messages":
     func retrieveMessages() {
         
-        let messageDB = Database.database().reference().child("Messages")
+        let messageDB = Database.database().reference().child("Messages") // creating a database object to draw from "Messages"
         
-        messageDB.observe(.childAdded) { (snapshot) in
+        messageDB.observe(.childAdded) { (snapshot) in // observes for when a 'snapshot' of data is added to the db object
             
             let snapshotValue = snapshot.value as! Dictionary<String,String>
             
             let messageText = snapshotValue["Message"]!
             let sender = snapshotValue["Sender"]!
             
-            let message = Message()
+            let message = Message() // creating a Message() object to access the messageBody, sender properties
             
             message.messageBody = messageText
             message.sender = sender
             
-            self.messageArray.append(message)
-            self.configureTableView()
+            self.messageArray.append(message) // appending the messageArray with the message object created
+            self.configureTableView() // reconfiguring the tableview to accompany another message
             self.messageTableView.reloadData()
             
         }

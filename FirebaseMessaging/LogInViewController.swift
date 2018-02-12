@@ -1,9 +1,4 @@
-//
-//  LogInViewController.swift
-//  Flash Chat
-//
-//  This is the view controller where users login
-
+// LogInViewController.swift
 
 import UIKit
 import Firebase
